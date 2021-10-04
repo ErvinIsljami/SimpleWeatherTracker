@@ -6,9 +6,10 @@ import { WeatherInputModel } from "./OwmInputModel";
 const http = require('http');
 
 export class OwmDataProvider implements IWeatherDataProvider {
-    private _subject: Subject<WeatherExportModel>;
+    private _weatherData$: Subject<WeatherExportModel>;
+
     constructor(){
-        this._subject = new Subject<WeatherExportModel>();
+        this._weatherData$ = new Subject<WeatherExportModel>();
     }
 
     public GetDataForLocation(location: string): Observable<WeatherExportModel> {
@@ -23,10 +24,9 @@ export class OwmDataProvider implements IWeatherDataProvider {
 
         const request = http.request(options, (res: any) => {
             res.setEncoding('utf8');
-            var that = this;
-            res.on('data', function(par: string) {
-                var param: WeatherInputModel = JSON.parse(par);
-                var retVal = new WeatherExportModel();
+            res.on('data', (par: string) => {
+                let param: WeatherInputModel = JSON.parse(par);
+                let retVal = new WeatherExportModel();
                 retVal.humidity = param.main['humidity'];
                 retVal.locationName = param.name;
                 retVal.weather = param.weather[0]['description'];
@@ -35,9 +35,9 @@ export class OwmDataProvider implements IWeatherDataProvider {
                 retVal.temp_max = param.main['temp_max'];
                 retVal.pressure = param.main['pressure'];
 
-                that._subject.next(retVal);
+                this._weatherData$.next(retVal);
             });
         }).end();
-        return this._subject;
+        return this._weatherData$;
     }
 }

@@ -46,7 +46,7 @@ if(numberOfApiCalls > Constants.MAX_API_CALLS) {
 }
 
 setInterval(() => {
-  var newHour = new Date().getHours();
+  const newHour = new Date().getHours();
   if(currentHour != newHour)
   {
     currentHour = newHour;
